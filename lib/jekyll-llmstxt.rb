@@ -13,10 +13,9 @@ module Jekyll
         file.content += "## Posts:\n\n"
 
         site.posts.docs.each do |post|
-          post_path = post.url.sub(/\.html$/, "").chomp("/")
-          post_url = site.baseurl ? File.join(site.baseurl, post_path) : post_path
+          post_url = site.baseurl ? File.join(site.baseurl, post.url) : post.url
           title = post.data["title"] || File.basename(post.basename, ".*")
-          file.content += "- [#{title}](#{post_url}/index.md)\n"
+          file.content += "- [#{title}](#{post_url})\n"
           file.content += "  Date: #{post.date.strftime("%Y-%m-%d")}\n" if post.date
           file.content += "  #{post.data["description"]}\n" if post.data["description"]
           if post.data["tags"]&.any?
@@ -28,15 +27,5 @@ module Jekyll
       end
 
     end
-  end
-end
-
-Jekyll::Hooks.register :site, :post_write do |site|
-  site.posts.docs.each do |post|
-    post_path = post.url.sub(/\.html$/, "")
-    target_dir = File.join(site.dest, post_path)
-    FileUtils.mkdir_p(target_dir)
-    target_path = File.join(target_dir, "index.md")
-    FileUtils.cp(post.path, target_path)
   end
 end

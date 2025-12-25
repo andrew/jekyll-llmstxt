@@ -58,13 +58,13 @@ class LLMSGeneratorTest < Minitest::Test
     assert_includes llms_page.content, "## Posts:"
   end
 
-  def test_lists_posts_with_markdown_links
+  def test_lists_posts_with_links
     site = create_site
     create_post("2024-01-15-first-post.md", title: "First Post")
     site.process
 
     llms_page = site.pages.find { |p| p.name == "llms.txt" }
-    assert_match(/\[First Post\]\(.*index\.md\)/, llms_page.content)
+    assert_match(/\[First Post\]\(.*first-post.*\)/, llms_page.content)
   end
 
   def test_lists_multiple_posts
@@ -84,7 +84,7 @@ class LLMSGeneratorTest < Minitest::Test
     site.process
 
     llms_page = site.pages.find { |p| p.name == "llms.txt" }
-    assert_match(%r{\[Test Post\]\(/blog/.*index\.md\)}, llms_page.content)
+    assert_match(%r{\[Test Post\]\(/blog/.*test-post}, llms_page.content)
   end
 
   def test_works_without_baseurl
@@ -93,7 +93,7 @@ class LLMSGeneratorTest < Minitest::Test
     site.process
 
     llms_page = site.pages.find { |p| p.name == "llms.txt" }
-    assert_match(%r{\[Test Post\]\(/\d{4}/\d{2}/\d{2}/test-post/index\.md\)}, llms_page.content)
+    assert_match(%r{\[Test Post\]\(/\d{4}/\d{2}/\d{2}/test-post/\)}, llms_page.content)
   end
 
   def test_page_has_no_layout
