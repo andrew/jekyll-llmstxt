@@ -16,6 +16,11 @@ module Jekyll
           post_url = site.baseurl ? File.join(site.baseurl, post.url) : post.url
           title = post.data["title"] || File.basename(post.basename, ".*")
           file.content += "- [#{title}](#{post_url}index.md)\n"
+          file.content += "  Date: #{post.date.strftime("%Y-%m-%d")}\n" if post.date
+          file.content += "  #{post.data["description"]}\n" if post.data["description"]
+          if post.data["tags"]&.any?
+            file.content += "  Tags: #{post.data["tags"].join(", ")}\n"
+          end
         end
 
         file.data["layout"] = nil
