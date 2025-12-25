@@ -112,4 +112,13 @@ class LLMSGeneratorTest < Minitest::Test
     assert llms_page
     assert_includes llms_page.content, "## Posts:"
   end
+
+  def test_uses_filename_when_post_has_no_title
+    site = create_site
+    create_post("2024-01-15-my-post.md")
+    site.process
+
+    llms_page = site.pages.find { |p| p.name == "llms.txt" }
+    assert_includes llms_page.content, "[My Post]"
+  end
 end

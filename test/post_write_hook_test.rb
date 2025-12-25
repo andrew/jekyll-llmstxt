@@ -48,4 +48,22 @@ class PostWriteHookTest < Minitest::Test
 
     assert Dir.exist?(@dest_dir)
   end
+
+  def test_works_with_date_permalink_style
+    site = create_site("permalink" => "date")
+    create_post("2024-01-15-test-post.md", title: "Test Post")
+    site.process
+
+    copied_file = File.join(@dest_dir, "2024", "01", "15", "test-post", "index.md")
+    assert File.exist?(copied_file), "Markdown file should be copied even with date permalinks"
+  end
+
+  def test_works_with_none_permalink_style
+    site = create_site("permalink" => "none")
+    create_post("2024-01-15-test-post.md", title: "Test Post")
+    site.process
+
+    copied_file = File.join(@dest_dir, "test-post", "index.md")
+    assert File.exist?(copied_file), "Markdown file should be copied even with none permalinks"
+  end
 end

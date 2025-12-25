@@ -26,12 +26,13 @@ module JekyllTestHelper
     Jekyll::Site.new(Jekyll.configuration(default_config.merge(config)))
   end
 
-  def create_post(filename, title:, content: "Post content")
+  def create_post(filename, title: nil, content: "Post content")
     posts_dir = File.join(@source_dir, "_posts")
+    front_matter = title ? "title: \"#{title}\"" : ""
     File.write(File.join(posts_dir, filename), <<~POST)
       ---
       layout: post
-      title: "#{title}"
+      #{front_matter}
       ---
       #{content}
     POST

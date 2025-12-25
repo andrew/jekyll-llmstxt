@@ -14,7 +14,8 @@ module Jekyll
 
         site.posts.docs.each do |post|
           post_url = site.baseurl ? File.join(site.baseurl, post.url) : post.url
-          file.content += "- [#{post.data["title"]}](#{post_url}index.md)\n"
+          title = post.data["title"] || File.basename(post.basename, ".*")
+          file.content += "- [#{title}](#{post_url}index.md)\n"
         end
 
         file.data["layout"] = nil
@@ -22,27 +23,13 @@ module Jekyll
 
     end
   end
-
-  class MarkdownPage < Page
-    def initialize(site, base, dir, name, content)
-      @site = site
-      @base = base
-      @dir  = dir
-      @name = name
-
-      self.process(name)
-      self.content = content
-      self.data = {
-        "layout" => nil, # Set layout if needed, or leave nil
-        "title" => "Generated Markdown File",
-      }
-    end
-  end
 end
 
 Jekyll::Hooks.register :site, :post_write do |site|
   site.posts.docs.each do |post|
-    target_dir = File.join(site.dest, post.url)
+    post_path = post.url.sub(/\.html$/, "")
+    target_dir = File.join(site.dest, post_path)
+    FileUtils.mkdir_p(target_dir)
     target_path = File.join(target_dir, "index.md")
     FileUtils.cp(post.path, target_path)
   end
