@@ -121,4 +121,49 @@ class LLMSGeneratorTest < Minitest::Test
     llms_page = site.pages.find { |p| p.name == "llms.txt" }
     assert_includes llms_page.content, "[My Post]"
   end
+
+  def test_includes_post_date
+    site = create_site
+    create_post("2024-01-15-test-post.md", title: "Test Post")
+    site.process
+
+    llms_page = site.pages.find { |p| p.name == "llms.txt" }
+    assert_includes llms_page.content, "Date: 2024-01-15"
+  end
+
+  def test_includes_post_description
+    site = create_site
+    create_post("2024-01-15-test-post.md", title: "Test Post", description: "A post about testing")
+    site.process
+
+    llms_page = site.pages.find { |p| p.name == "llms.txt" }
+    assert_includes llms_page.content, "A post about testing"
+  end
+
+  def test_omits_description_when_not_set
+    site = create_site
+    create_post("2024-01-15-test-post.md", title: "Test Post")
+    site.process
+
+    llms_page = site.pages.find { |p| p.name == "llms.txt" }
+    refute_includes llms_page.content, "  \n"
+  end
+
+  def test_includes_post_tags
+    site = create_site
+    create_post("2024-01-15-test-post.md", title: "Test Post", tags: ["ruby", "jekyll"])
+    site.process
+
+    llms_page = site.pages.find { |p| p.name == "llms.txt" }
+    assert_includes llms_page.content, "Tags: ruby, jekyll"
+  end
+
+  def test_omits_tags_when_not_set
+    site = create_site
+    create_post("2024-01-15-test-post.md", title: "Test Post")
+    site.process
+
+    llms_page = site.pages.find { |p| p.name == "llms.txt" }
+    refute_includes llms_page.content, "Tags:"
+  end
 end
