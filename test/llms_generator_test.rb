@@ -166,4 +166,58 @@ class LLMSGeneratorTest < Minitest::Test
     llms_page = site.pages.find { |p| p.name == "llms.txt" }
     refute_includes llms_page.content, "Tags:"
   end
+
+  def test_does_not_generate_full_by_default
+    site = create_site
+    site.process
+
+    full_page = site.pages.find { |p| p.name == "llms-full.txt" }
+    assert_nil full_page
+  end
+
+  def test_generates_full_when_configured
+    site = create_site("llmstxt" => { "full" => true })
+    site.process
+
+    full_page = site.pages.find { |p| p.name == "llms-full.txt" }
+    assert full_page, "llms-full.txt should be generated when configured"
+  end
+
+  def test_full_includes_site_header
+    site = create_site("llmstxt" => { "full" => true }, "title" => "My Site")
+    site.process
+
+    full_page = site.pages.find { |p| p.name == "llms-full.txt" }
+    assert_includes full_page.content, "# My Site"
+  end
+
+  def test_full_includes_post_content
+    site = create_site("llmstxt" => { "full" => true })
+    create_post("2024-01-15-test-post.md", title: "Test Post", content: "This is the full post content.")
+    site.process
+
+    full_page = site.pages.find { |p| p.name == "llms-full.txt" }
+    assert_includes full_page.content, "## Test Post"
+    assert_includes full_page.content, "This is the full post content."
+  end
+
+  def test_full_includes_post_metadata
+    site = create_site("llmstxt" => { "full" => true })
+    create_post("2024-01-15-test-post.md", title: "Test Post", tags: ["ruby", "jekyll"])
+    site.process
+
+    full_page = site.pages.find { |p| p.name == "llms-full.txt" }
+    assert_includes full_page.content, "Date: 2024-01-15"
+    assert_includes full_page.content, "Tags: ruby, jekyll"
+  end
+
+  def test_full_separates_posts_with_dividers
+    site = create_site("llmstxt" => { "full" => true })
+    create_post("2024-01-15-first-post.md", title: "First Post", content: "First content")
+    create_post("2024-01-16-second-post.md", title: "Second Post", content: "Second content")
+    site.process
+
+    full_page = site.pages.find { |p| p.name == "llms-full.txt" }
+    assert_includes full_page.content, "---"
+  end
 end
